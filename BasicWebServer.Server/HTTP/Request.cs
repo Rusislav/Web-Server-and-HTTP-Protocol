@@ -16,6 +16,7 @@ namespace BasicWebServer.Server.HTTP
 
         public HeaderCollection Headers { get; private set; }
 
+
         public static Request Parse(string request)
         {
             var lines = request.Split("r\n");
