@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace BasicWebServer.Server.Responses
 {
-    public class NotFoundResponse : Response
+    public class TextResponse : ContentResponse
     {
-        public NotFoundResponse() 
-            : base(StatusCode.NotFound)
+        public TextResponse(string text) 
+            : base(text, ContentType.PlainText)
         {
         }
     }
