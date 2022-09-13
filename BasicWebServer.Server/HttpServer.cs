@@ -6,6 +6,9 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System;
+using BasicWebServer.Server.Routing;
+using BasicWebServer.Server.HTTP;
+
 namespace BasicWebServer.Server
 {
     public class HttpServer
@@ -14,16 +17,29 @@ namespace BasicWebServer.Server
         private readonly int port;
         private readonly TcpListener serverListener;
 
-        public HttpServer(string ipAddress, int port)
+        private readonly RoutingTable routingTable;
+         
+        public HttpServer(string ipAddress, int port, Action<IRoutingTable> rouingTableConfiguration)
         {
             this.ipAddress = IPAddress.Parse(ipAddress);
             this.port = port;
             this.serverListener = new TcpListener(this.ipAddress, this.port);
+            rouingTableConfiguration(this.routingTable = new RoutingTable());
+        }
+        public HttpServer(int port, Action<IRoutingTable> routingTable) : this("127.0.0.1",port,routingTable)
+        {
+
+        }
+
+        public HttpServer(Action<IRoutingTable> routingTable) : this(8080, routingTable)
+        {
+
         }
 
         public void Start()
         {
-            serverListener.Start();
+            this.serverListener.Start();
+
             Console.WriteLine($"Server start on port {port}");
             Console.WriteLine("Listening for request ");
 
@@ -35,27 +51,33 @@ namespace BasicWebServer.Server
                                                            //first we need to create a stream, through which data is received or sent to the browser as a byte array
 
                 var requestText = this.ReadRequest(networkStream);
-                WriteRespons(networkStream,"Hello From Rusi");
+                //WriteRespons(networkStream,"Hello From Rusi");
 
                 Console.WriteLine(requestText);
+
+                var request = Request.Parse(requestText);
+
+                var response = this.routingTable.MatchRequest(request);
+
+                WriteRespons(networkStream, response); 
 
                connection.Close(); //we close the connection to the browser 
             }
         }
 
-        private static void WriteRespons(NetworkStream networkStream ,string content)
+        private  void WriteRespons(NetworkStream networkStream ,Response response)
         {
-            var contentLength = Encoding.UTF8.GetByteCount(content);
-            //and get its length in bytes(bytes length is often different from the string length)
+//            var contentLength = Encoding.UTF8.GetByteCount(response);
+//            //and get its length in bytes(bytes length is often different from the string length)
 
 
-            var response = $@"HTTP/1.1 200 OK   
-Content-Type: text/plain; charset=UTF-8
-Content-Length: {contentLength}
+//            var response = $@"HTTP/1.1 200 OK   
+//Content-Type: text/plain; charset=UTF-8
+//Content-Length: {contentLength}
 
-{content}";  // construct our response
+//{response}";  // construct our response
 
-            var responsBytes = Encoding.UTF8.GetBytes(response);//send the content as a plain text with the UTF-8 encoding to accept more symbols 
+            var responsBytes = Encoding.UTF8.GetBytes(response.ToString());//send the content as a plain text with the UTF-8 encoding to accept more symbols 
 
             networkStream.Write(responsBytes);//send the response bytes to the browser
         }

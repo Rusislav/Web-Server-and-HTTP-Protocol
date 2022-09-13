@@ -8,10 +8,8 @@ using System.Threading.Tasks;
 namespace BasicWebServer.Server.Responses
 {
     public class UnauthorizedResponse : Response
-    {
-        
-
-        public UnauthorizedResponse(StatusCode statusCode) 
+    {      
+        public UnauthorizedResponse() 
             : base(StatusCode.Unauthorized)
         {
         }

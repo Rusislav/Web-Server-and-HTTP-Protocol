@@ -19,5 +19,16 @@ namespace BasicWebServer.Server.Responses
             this.Headers.Add(Header.ContentType, contentType);
             this.Body = content;
         }
+
+        public override string ToString()
+        {
+
+            if(this.Body != null)
+            {
+                var contendLenght = Encoding.UTF8.GetByteCount(this.Body).ToString();
+                this.Headers.Add(Header.ContentLength, contendLenght);
+            }
+            return base.ToString();
+        }
     }
 }

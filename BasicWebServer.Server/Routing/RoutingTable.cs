@@ -12,15 +12,14 @@ namespace BasicWebServer.Server.Routing
     public class RoutingTable : IRoutingTable
     {
 
-        private readonly Dictionary<Method, Dictionary<string, Response>> routers;
+        private readonly Dictionary<Method, Dictionary<string, Response>> routes;
 
-        public RoutingTable() => this.routers = new Dictionary<Method, Dictionary<string, Response>>()
+        public RoutingTable() => this.routes = new Dictionary<Method, Dictionary<string, Response>>()
         {
             [Method.Get] = new (),
             [Method.Post] = new (),
             [Method.Put] = new (),
             [Method.Delete] = new (),
-
         };
 
         public IRoutingTable Map(string url, Method method, Response response) => method switch
@@ -35,7 +34,7 @@ namespace BasicWebServer.Server.Routing
             Guard.AgaintsNull(url, nameof(url));
             Guard.AgaintsNull(response, nameof(response));
 
-            this.routers[Method.Post][url] = response;
+            this.routes[Method.Get][url] = response;
             return this;
         }
 
@@ -44,7 +43,7 @@ namespace BasicWebServer.Server.Routing
             Guard.AgaintsNull(url, nameof(url));
             Guard.AgaintsNull(response, nameof(response));
 
-            this.routers[Method.Post][url] = response;
+            this.routes[Method.Post][url] = response;
             return this;
         }
 
@@ -53,10 +52,12 @@ namespace BasicWebServer.Server.Routing
             var requestMethod = request.Method;
             var requestUrl = request.Url;
 
-            if (!this.routers.ContainsKey(requestMethod) ||  !this.routers[requestMethod].ContainsKey(requestUrl))
+            if (!this.routes.ContainsKey(requestMethod) ||  !this.routes[requestMethod].ContainsKey(requestUrl))
             {
                 return new NotFoundResponse();
             }
+
+            return this.routes[requestMethod][requestUrl];
         }
     }
 }
