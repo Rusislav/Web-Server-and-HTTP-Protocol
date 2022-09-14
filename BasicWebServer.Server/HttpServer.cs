@@ -59,6 +59,9 @@ namespace BasicWebServer.Server
 
                 var response = this.routingTable.MatchRequest(request);
 
+                if (response.PreRenderAction != null)
+                    response.PreRenderAction(request, response); 
+
                 WriteRespons(networkStream, response); 
 
                connection.Close(); //we close the connection to the browser 
